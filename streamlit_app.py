@@ -34,7 +34,7 @@ st.markdown("""
     }
     .card {
         background: #2C2C2C;
-        padding: 15px;
+        padding: 5px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         margin-bottom: 10px;
@@ -64,13 +64,12 @@ st.markdown("""
 st.markdown('<div class="title">YouTube Video Downloader</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Download YouTube videos and audio with your preferred settings.</div>', unsafe_allow_html=True)
 
-# Input URL and fetch cookies button
+# Input URL and fetch cookies butto
+url = st.text_input("🔗 YouTube URL:", placeholder="Paste your YouTube link here")
+
 st.markdown('<div class="card compact-row">', unsafe_allow_html=True)
-col1, col2 = st.columns([4, 1])
-with col1:
-    url = st.text_input("🔗 YouTube URL:", placeholder="Paste your YouTube link here")
-with col2:
-    fetch_cookies = st.button("Fetch Cookies")
+st.write("In case of Authentication Errors, Click on button below to fetch cookies")
+fetch_cookies = st.button("Fetch Cookies")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Fetch cookies dynamically
