@@ -137,8 +137,8 @@ if url:
                 audio_bitrate = st.slider("Bitrate (kbps):", 64, 320, 128, step=32)
 
         # Download button
-        if st.button("Download"):
-            with st.spinner("Downloading..."):
+        if st.button("Generate Download Link"):
+            with st.spinner("Generating Link..."):
                 progress_bar = st.progress(0)
 
                 # Update ydl_opts based on user settings
@@ -156,7 +156,7 @@ if url:
                     }]
 
                 def progress_hook(d):
-                    if d["status"] == "downloading":
+                    if d["status"] == "Generating Download Link":
                         percent = re.sub(r'[^\d.]', '', d.get("_percent_str", "0"))
                         progress_bar.progress(min(int(float(percent)), 100))
 
@@ -174,7 +174,7 @@ if url:
 
                         file_name = os.path.basename(final_file_path)
 
-                        st.success("Download complete!")
+                        st.success("Link Generated Successfully!")
 
                         # Serve the file using st.download_button
                         with open(final_file_path, "rb") as file:
