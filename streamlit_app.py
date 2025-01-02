@@ -139,7 +139,7 @@ if url:
         # Download button
         if st.button("Generate Download Link"):
             with st.spinner("Generating Link..."):
-                progress_bar = st.progress(0)
+                progress_bar = st.progress(0)  # Initialize progress bar
 
                 # Update ydl_opts based on user settings
                 if format_options == "Video":
@@ -155,10 +155,12 @@ if url:
                         "preferredquality": str(audio_bitrate),
                     }]
 
+                # Progress hook for yt-dlp
                 def progress_hook(d):
-                    if d["status"] == "Generating Download Link":
-                        percent = re.sub(r'[^\d.]', '', d.get("_percent_str", "0"))
-                        progress_bar.progress(min(int(float(percent)), 100))
+                    if d["status"] == "downloading":
+                        percent_str = d.get("_percent_str", "0.0%").strip()
+                        percent = float(re.sub(r'[^\d.]', '', percent_str))  # Remove non-numeric characters
+                        progress_bar.progress(min(int(percent), 100))  # Update progress bar (max 100%)
 
                 ydl_opts["progress_hooks"] = [progress_hook]
 
@@ -187,7 +189,6 @@ if url:
                             )
                 except Exception as e:
                     st.error(f"Download failed: {e}")
-
     except Exception as e:
         st.error(f"Error fetching video details: {e}")
 
