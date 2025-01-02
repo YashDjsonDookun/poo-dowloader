@@ -96,7 +96,7 @@ def generate_download_link(file_path, file_name):
     with open(file_path, "rb") as file:
         file_data = file.read()
     b64 = base64.b64encode(file_data).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}" class="btn-primary">📥 Click here to download {file_name}</a>'
+    href = f'📥 Click here to download <a href="data:application/octet-stream;base64,{b64}" download="{file_name}" class="btn-primary">{file_name}</a>'
     return href
 
 # Display video details and customization options in a compact layout
