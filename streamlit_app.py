@@ -11,65 +11,68 @@ import base64
 TEMP_DOWNLOAD_DIR = "downloads"
 os.makedirs(TEMP_DOWNLOAD_DIR, exist_ok=True)
 
-# Custom CSS for a modern and responsive layout
+# Custom CSS for dynamic and modern layout
 st.markdown("""
     <style>
-    .main {
+    body {
         background-color: #f9f9f9;
-        font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
-        margin: 0 auto;
-        padding: 1rem;
+        margin: 0;
     }
     .title {
-        color: #007BFF;
-        font-size: 28px;
+        color: #4a90e2;
+        font-size: 32px;
         font-weight: bold;
         text-align: center;
-        margin-bottom: 0.5rem;
+        margin-bottom: 20px;
     }
     .subtitle {
-        color: #555555;
-        font-size: 16px;
+        color: #444;
+        font-size: 18px;
         text-align: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 30px;
     }
     .card {
-        background-color: white;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
+        margin-bottom: 20px;
     }
     .btn-primary {
-        background-color: #007BFF;
+        background-color: #4a90e2;
         color: white;
         padding: 10px 20px;
-        font-size: 14px;
         border: none;
         border-radius: 5px;
+        font-size: 16px;
         cursor: pointer;
-        margin-top: 10px;
     }
     .btn-primary:hover {
         background-color: #0056b3;
+    }
+    .progress-bar {
+        height: 10px;
+        border-radius: 5px;
+        background-color: #e0e0e0;
+        margin-bottom: 20px;
+    }
+    .progress-bar .progress {
+        height: 100%;
+        border-radius: 5px;
+        background-color: #4a90e2;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="title">YouTube Video Downloader</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Quickly download YouTube videos and audio with ease.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Quickly download YouTube videos and audio in your desired format.</div>', unsafe_allow_html=True)
 
-# Input fields in a card layout
-st.markdown('<div class="card">', unsafe_allow_html=True)
-
+# Input fields in a compact layout
 col1, col2 = st.columns([3, 1])
 with col1:
     url = st.text_input("🔗 Enter YouTube URL:", placeholder="Paste YouTube video link here")
-
 with col2:
     fetch_cookies = st.button("Fetch Cookies")
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # Fetch cookies dynamically
 if fetch_cookies:
