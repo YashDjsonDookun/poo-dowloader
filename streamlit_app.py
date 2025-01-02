@@ -143,6 +143,10 @@ if url:
                 progress_bar = st.progress(0)  # Initialize progress bar
                 progress_text = st.empty()  # Placeholder for progress text
 
+                # Custom HTML for better progress display
+                progress_html = st.empty()  # Placeholder for styled progress
+                progress_details = st.empty()  # Placeholder for download details
+
                 # Update ydl_opts based on user settings
                 if format_options == "Video":
                     if video_quality == "Custom":
@@ -157,20 +161,39 @@ if url:
                         "preferredquality": str(audio_bitrate),
                     }]
 
-                # Progress hook for yt-dlp
+                # Enhanced Progress Hook
                 def progress_hook(d):
                     if d["status"] == "downloading":
                         percent_str = d.get("_percent_str", "0.0%").strip()
-                        percent = float(re.sub(r'[^\d.]', '', percent_str))  # Remove non-numeric characters
+                        percent = float(re.sub(r'[^\d.]', '', percent_str))  # Extract percentage
                         speed = d.get("_speed_str", "N/A")  # Current download speed
-                        downloaded = d.get("_downloaded_bytes", 0) / (1024 * 1024)  # Bytes to MB
-                        total_size = d.get("total_bytes", 0) / (1024 * 1024)  # Total size in MB
+                        downloaded = d.get("downloaded_bytes", 0) / (1024 * 1024)  # Bytes to MB
+                        total_size = d.get("total_bytes", 0) / (1024 * 1024) if d.get("total_bytes") else None  # Total size
 
-                        # Update progress bar and text
-                        progress_bar.progress(min(int(percent), 100))  # Update progress bar (max 100%)
-                        progress_text.text(
-                            f"Progress: {percent:.2f}% | Speed: {speed} | Downloaded: {downloaded:.2f} MB / {total_size:.2f} MB"
-                        )
+                        # Update progress bar
+                        progress_bar.progress(min(int(percent), 100))
+
+                        # Update HTML-styled progress details
+                        if total_size:
+                            progress_details.markdown(
+                                f"""
+                                <div style="color: #4a90e2; font-size: 16px; text-align: center; margin-top: 10px;">
+                                    <b>Progress:</b> {percent:.2f}%<br>
+                                    <b>Speed:</b> {speed}<br>
+                                    <b>Downloaded:</b> {downloaded:.2f} MB / {total_size:.2f} MB
+                                </div>
+                                """, unsafe_allow_html=True
+                            )
+                        else:
+                            progress_details.markdown(
+                                f"""
+                                <div style="color: #4a90e2; font-size: 16px; text-align: center; margin-top: 10px;">
+                                    <b>Progress:</b> {percent:.2f}%<br>
+                                    <b>Speed:</b> {speed}<br>
+                                    <b>Downloaded:</b> {downloaded:.2f} MB
+                                </div>
+                                """, unsafe_allow_html=True
+                            )
 
                 ydl_opts["progress_hooks"] = [progress_hook]
 
