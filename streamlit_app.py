@@ -11,31 +11,33 @@ import base64
 TEMP_DOWNLOAD_DIR = "downloads"
 os.makedirs(TEMP_DOWNLOAD_DIR, exist_ok=True)
 
-# Custom CSS for dynamic and modern layout
+# Custom CSS for a better layout
 st.markdown("""
     <style>
     body {
-        background-color: #f9f9f9;
+        background-color: #1E1E1E;
+        color: #FFFFFF;
+        font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
         margin: 0;
     }
     .title {
         color: #4a90e2;
-        font-size: 32px;
+        font-size: 36px;
         font-weight: bold;
         text-align: center;
         margin-bottom: 20px;
     }
     .subtitle {
-        color: #444;
+        color: #AAAAAA;
         font-size: 18px;
         text-align: center;
         margin-bottom: 30px;
     }
     .card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background: #2C2C2C;
         padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         margin-bottom: 20px;
     }
     .btn-primary {
@@ -50,29 +52,47 @@ st.markdown("""
     .btn-primary:hover {
         background-color: #0056b3;
     }
-    .progress-bar {
-        height: 10px;
-        border-radius: 5px;
-        background-color: #e0e0e0;
+    .input-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin-bottom: 20px;
     }
-    .progress-bar .progress {
-        height: 100%;
+    .input-group input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border: none;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    .input-group button {
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
         border-radius: 5px;
         background-color: #4a90e2;
+        color: white;
+        cursor: pointer;
+    }
+    .input-group button:hover {
+        background-color: #0056b3;
     }
     </style>
 """, unsafe_allow_html=True)
 
+# Header
 st.markdown('<div class="title">YouTube Video Downloader</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Quickly download YouTube videos and audio in your desired format.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Quickly download YouTube videos or audio with ease.</div>', unsafe_allow_html=True)
 
-# Input fields in a compact layout
-col1, col2 = st.columns([3, 1])
-with col1:
-    url = st.text_input("🔗 Enter YouTube URL:", placeholder="Paste YouTube video link here")
-with col2:
-    fetch_cookies = st.button("Fetch Cookies")
+# Input group for URL and fetch button
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.markdown('<div class="input-group">', unsafe_allow_html=True)
+
+url = st.text_input("🔗 Enter YouTube URL:", "", placeholder="Paste your YouTube link here")
+fetch_cookies = st.button("Fetch Cookies")
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Fetch cookies dynamically
 if fetch_cookies:
@@ -94,14 +114,7 @@ if fetch_cookies:
     except Exception as e:
         st.error(f"Failed to fetch cookies: {e}")
 
-# Function to create a downloadable link
-def generate_download_link(file_path, file_name):
-    with open(file_path, "rb") as f:
-        data = f.read()
-    b64 = base64.b64encode(data).decode()
-    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}" class="btn-primary">📥 Download {file_name}</a>'
-    return href
-
+# Video details and download options
 if url:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.write("Fetching video details...")
@@ -119,7 +132,6 @@ if url:
             st.markdown(f"**Uploader:** {info_dict.get('uploader')}")
             st.markdown(f"**Views:** {info_dict.get('view_count'):,}")
 
-        # Download customization options
         format_options = st.radio("Choose Format:", ["Video", "Audio"], horizontal=True)
 
         if format_options == "Video":
@@ -134,8 +146,6 @@ if url:
 
         if download_button:
             with st.spinner("Downloading..."):
-                progress_bar = st.progress(0)
-
                 if format_options == "Video":
                     if quality == "Custom":
                         ydl_opts["format"] = custom_format
@@ -149,20 +159,10 @@ if url:
                         "preferredquality": str(audio_bitrate),
                     }]
 
-                def progress_hook(d):
-                    if d["status"] == "downloading":
-                        percent = re.sub(r'[^\d.]', '', d.get("_percent_str", "0"))
-                        progress_bar.progress(min(int(float(percent)), 100))
-
-                ydl_opts["progress_hooks"] = [progress_hook]
-
                 try:
                     with YoutubeDL(ydl_opts) as ydl:
                         ydl.download([url])
-                        file_path = ydl.prepare_filename(info_dict)
-                        file_name = os.path.basename(file_path)
-                        st.success("Download complete!")
-                        st.markdown(generate_download_link(file_path, file_name), unsafe_allow_html=True)
+                        st.success("Download complete! Check your downloads folder.")
                 except Exception as e:
                     st.error(f"Download failed: {e}")
 
