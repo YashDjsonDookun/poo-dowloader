@@ -64,7 +64,7 @@ st.markdown("""
 st.markdown('<div class="title">YouTube Video Downloader</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Download YouTube videos and audio with your preferred settings.</div>', unsafe_allow_html=True)
 
-# Input URL and fetch cookies butto
+# Input URL and fetch cookies button
 url = st.text_input("🔗 YouTube URL:", placeholder="Paste your YouTube link here")
 
 st.markdown('<div class="card compact-row">', unsafe_allow_html=True)
@@ -91,6 +91,14 @@ if fetch_cookies:
         st.success("Cookies fetched successfully.")
     except Exception as e:
         st.error(f"Failed to fetch cookies: {e}")
+
+# Generate a downloadable link for the client
+def generate_download_link(file_path, file_name):
+    with open(file_path, "rb") as file:
+        file_data = file.read()
+    b64 = base64.b64encode(file_data).decode()
+    href = f'<a href="data:application/octet-stream;base64,{b64}" download="{file_name}" class="btn-primary">📥 Click here to download {file_name}</a>'
+    return href
 
 # Display video details and customization options in a compact layout
 if url:
@@ -157,7 +165,10 @@ if url:
                 try:
                     with YoutubeDL(ydl_opts) as ydl:
                         ydl.download([url])
-                        st.success("Download complete! Check your downloads folder.")
+                        file_path = ydl.prepare_filename(info_dict)
+                        file_name = os.path.basename(file_path)
+                        st.success("Download complete!")
+                        st.markdown(generate_download_link(file_path, file_name), unsafe_allow_html=True)
                 except Exception as e:
                     st.error(f"Download failed: {e}")
 
