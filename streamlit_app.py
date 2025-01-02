@@ -87,13 +87,55 @@ if url:
             st.markdown(f"**Uploader:** {info_dict.get('uploader')}")
             st.markdown(f"**Views:** {info_dict.get('view_count'):,}")
 
+        # User customization options
+        st.markdown("### Customize Your Download")
+        format_options = st.radio("Select Download Type:", ["Video", "Audio"], horizontal=True)
+        if format_options == "Video":
+            video_quality = st.selectbox("Select Video Quality:", ["Best", "Worst", "Custom"])
+            if video_quality == "Custom":
+                custom_format = st.text_input("Enter Custom Format (e.g., bestvideo+bestaudio):", "bestvideo+bestaudio")
+        elif format_options == "Audio":
+            audio_format = st.selectbox("Select Audio Format:", ["MP3", "AAC", "WAV", "FLAC"])
+            audio_bitrate = st.slider("Select Audio Bitrate (kbps):", 64, 320, 128)
+
         if st.button("Download"):
             with st.spinner("Downloading..."):
-                result = ydl.download([url])
-                file_path = ydl.prepare_filename(info_dict)
-                file_name = os.path.basename(file_path)
-                st.success("Download complete!")
-                st.markdown(generate_download_link(file_path, file_name), unsafe_allow_html=True)
+                progress_bar = st.progress(0)  # Initialize progress bar
+
+                # Update options based on user preferences
+                if format_options == "Video":
+                    if video_quality == "Custom":
+                        ydl_opts["format"] = custom_format
+                    else:
+                        ydl_opts["format"] = "best" if video_quality == "Best" else "worst"
+                elif format_options == "Audio":
+                    ydl_opts["format"] = "bestaudio"
+                    ydl_opts["postprocessors"] = [{
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": audio_format.lower(),
+                        "preferredquality": str(audio_bitrate),
+                    }]
+
+                def progress_hook(d):
+                    if d["status"] == "downloading":
+                        percent_str = re.sub(r'\x1b\[.*?m', '', d.get("_percent_str", "0.0%"))
+                        try:
+                            percent = float(percent_str.strip('%'))
+                            progress_bar.progress(min(int(percent), 100))
+                        except ValueError:
+                            pass
+
+                ydl_opts["progress_hooks"] = [progress_hook]
+
+                try:
+                    with YoutubeDL(ydl_opts) as ydl:
+                        result = ydl.download([url])
+                        file_path = ydl.prepare_filename(info_dict)
+                        file_name = os.path.basename(file_path)
+                        st.success("Download complete!")
+                        st.markdown(generate_download_link(file_path, file_name), unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"Error: {e}")
 
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error fetching video details: {e}")
