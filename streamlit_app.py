@@ -6,10 +6,10 @@ from yt_dlp import YoutubeDL
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import base64
+import tempfile
 
-# Temporary download directory for server-side processing
-TEMP_DOWNLOAD_DIR = "downloads"
-os.makedirs(TEMP_DOWNLOAD_DIR, exist_ok=True)
+# Temporary download directory for server-side processing -- Safe temporary directory
+TEMP_DOWNLOAD_DIR = tempfile.mkdtemp()
 
 # Custom CSS for compact layout
 st.markdown("""
@@ -106,9 +106,12 @@ if url:
 
     try:
         ydl_opts = {
-            "outtmpl": os.path.join(TEMP_DOWNLOAD_DIR, "%(title)s.%(ext)s"),
+            "outtmpl": os.path.join(TEMP_DOWNLOAD_DIR, "%(title).200s.%(ext)s"),
             "cookiefile": "youtube_cookies.json" if os.path.exists("youtube_cookies.json") else None,
         }
+
+        # Debugging: Show the download path
+        st.write(f"Downloading to: {TEMP_DOWNLOAD_DIR}")
 
         with YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=False)
