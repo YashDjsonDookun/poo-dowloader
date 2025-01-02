@@ -108,7 +108,6 @@ if url:
         ydl_opts = {
             "outtmpl": os.path.join(TEMP_DOWNLOAD_DIR, "%(title).200s.%(ext)s"),
             "cookiefile": "youtube_cookies.json" if os.path.exists("youtube_cookies.json") else None,
-            "postprocessor_args": ["-k"],
         }
 
         # Debugging: Show the download path
@@ -158,6 +157,7 @@ if url:
                         "preferredcodec": audio_format.lower(),
                         "preferredquality": str(audio_bitrate),
                     }]
+                    ydl_opts["postprocessors_args"]: ["-k"]
 
                 def progress_hook(d):
                     if d["status"] == "downloading":
