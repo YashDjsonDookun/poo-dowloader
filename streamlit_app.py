@@ -121,6 +121,7 @@ if url:
             st.markdown(f"**Title:** {info_dict.get('title')}")
             st.markdown(f"**Uploader:** {info_dict.get('uploader')}")
             st.markdown(f"**Views:** {info_dict.get('view_count'):,}")
+            st.markdown(f"**Duration:** {info_dict.get('duration') // 60} minutes")
 
         # Format selection options
         st.markdown("---")
@@ -140,6 +141,7 @@ if url:
         if st.button("Generate Download Link"):
             with st.spinner("Generating Link..."):
                 progress_bar = st.progress(0)  # Initialize progress bar
+                progress_text = st.empty()  # Placeholder for progress text
 
                 # Update ydl_opts based on user settings
                 if format_options == "Video":
@@ -160,7 +162,15 @@ if url:
                     if d["status"] == "downloading":
                         percent_str = d.get("_percent_str", "0.0%").strip()
                         percent = float(re.sub(r'[^\d.]', '', percent_str))  # Remove non-numeric characters
+                        speed = d.get("_speed_str", "N/A")  # Current download speed
+                        downloaded = d.get("_downloaded_bytes", 0) / (1024 * 1024)  # Bytes to MB
+                        total_size = d.get("total_bytes", 0) / (1024 * 1024)  # Total size in MB
+
+                        # Update progress bar and text
                         progress_bar.progress(min(int(percent), 100))  # Update progress bar (max 100%)
+                        progress_text.text(
+                            f"Progress: {percent:.2f}% | Speed: {speed} | Downloaded: {downloaded:.2f} MB / {total_size:.2f} MB"
+                        )
 
                 ydl_opts["progress_hooks"] = [progress_hook]
 
@@ -189,6 +199,7 @@ if url:
                             )
                 except Exception as e:
                     st.error(f"Download failed: {e}")
+
     except Exception as e:
         st.error(f"Error fetching video details: {e}")
 
