@@ -1,4 +1,4 @@
 #!/bin/bash
 echo "Installing Playwright browsers..."
-playwright install chromium
+playwright install
 echo "Playwright installation completed!"
