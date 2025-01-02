@@ -92,11 +92,9 @@ if fetch_cookies:
         st.error(f"Failed to fetch cookies: {e}")
 
 # Generate a downloadable link for the client
+# Generate a direct downloadable link for the client
 def generate_download_link(file_path, file_name):
-    with open(file_path, "rb") as file:
-        file_data = file.read()
-    b64 = base64.b64encode(file_data).decode()
-    href = f'📥 Click here to download <a href="data:application/octet-stream;base64,{b64}" download="{file_name}" class="btn-primary">{file_name}</a>'
+    href = f'📥 Click here to download <a href="file/{file_path}" download="{file_name}" class="btn-primary">📥 Click here to download {file_name}</a>'
     return href
 
 # Display video details and customization options in a compact layout
