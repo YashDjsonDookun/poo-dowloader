@@ -33,7 +33,7 @@ st.markdown("""
         margin-bottom: 20px;
     }
     .card {
-        background: #2C2C2C;
+        # background: #2C2C2C;
         padding: 5px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
