@@ -33,12 +33,13 @@ st.markdown("""
         margin-bottom: 20px;
     }
     .card {
+        # background: #2C2C2C;
         padding: 5px;
         border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         margin-bottom: 10px;
     }
     .btn-primary {
-        background-color: #4a90e2;
         color: white;
         padding: 8px 16px;
         border: none;
