@@ -175,7 +175,16 @@ if url:
                         file_name = os.path.basename(final_file_path)
 
                         st.success("Download complete!")
-                        st.markdown(generate_download_link(final_file_path, file_name), unsafe_allow_html=True)
+
+                        # Serve the file using st.download_button
+                        with open(final_file_path, "rb") as file:
+                            file_data = file.read()
+                            st.download_button(
+                                label="📥 Click here to download your file",
+                                data=file_data,
+                                file_name=file_name,
+                                mime="application/octet-stream",
+                            )
                 except Exception as e:
                     st.error(f"Download failed: {e}")
 
