@@ -157,7 +157,6 @@ if url:
                         "preferredcodec": audio_format.lower(),
                         "preferredquality": str(audio_bitrate),
                     }]
-                    ydl_opts["postprocessors_args"]: ["-k"]
 
                 def progress_hook(d):
                     if d["status"] == "downloading":
@@ -168,11 +167,18 @@ if url:
 
                 try:
                     with YoutubeDL(ydl_opts) as ydl:
-                        ydl.download([url])
-                        file_path = ydl.prepare_filename(info_dict)
-                        file_name = os.path.basename(file_path)
+                        # Download and process the video
+                        info_dict = ydl.extract_info(url, download=True)
+                        final_file_path = ydl.prepare_filename(info_dict)
+
+                        # If postprocessors are applied (e.g., audio extraction), adjust the file name
+                        if "postprocessors" in ydl_opts and format_options == "Audio":
+                            final_file_path = re.sub(r"\.webm|\.m4a|\.mp4", f".{audio_format.lower()}", final_file_path)
+
+                        file_name = os.path.basename(final_file_path)
+
                         st.success("Download complete!")
-                        st.markdown(generate_download_link(file_path, file_name), unsafe_allow_html=True)
+                        st.markdown(generate_download_link(final_file_path, file_name), unsafe_allow_html=True)
                 except Exception as e:
                     st.error(f"Download failed: {e}")
 
