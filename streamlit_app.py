@@ -108,6 +108,7 @@ if url:
         ydl_opts = {
             "outtmpl": os.path.join(TEMP_DOWNLOAD_DIR, "%(title).200s.%(ext)s"),
             "cookiefile": "youtube_cookies.json" if os.path.exists("youtube_cookies.json") else None,
+            "postprocessor_args": ["-k"],
         }
 
         # Debugging: Show the download path
