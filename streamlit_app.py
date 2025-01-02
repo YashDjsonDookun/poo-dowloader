@@ -188,7 +188,7 @@ if url:
                             progress_details.markdown(
                                 f"""
                                 <div style="color: #4a90e2; font-size: 16px; text-align: center; margin-top: 10px;">
-                                    <strong>Progress:</strong> {percent:.2f}% || <strong>Speed:</strong> {speed} ||<strong>Downloaded:</strong> {downloaded:.2f} MB
+                                    <p><strong>Progress:</strong> {percent:.2f}% || <strong>Speed:</strong> {speed} ||<strong>Downloaded:</strong> {downloaded:.2f} MB</p>
                                 </div>
                                 """, unsafe_allow_html=True
                             )
