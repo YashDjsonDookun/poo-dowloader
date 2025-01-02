@@ -11,87 +11,66 @@ import base64
 TEMP_DOWNLOAD_DIR = "downloads"
 os.makedirs(TEMP_DOWNLOAD_DIR, exist_ok=True)
 
-# Custom CSS for a better layout
+# Custom CSS for compact layout
 st.markdown("""
     <style>
     body {
         background-color: #1E1E1E;
         color: #FFFFFF;
         font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
-        margin: 0;
     }
     .title {
         color: #4a90e2;
-        font-size: 36px;
+        font-size: 30px;
         font-weight: bold;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
     .subtitle {
         color: #AAAAAA;
-        font-size: 18px;
+        font-size: 16px;
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
     }
     .card {
         background: #2C2C2C;
-        padding: 20px;
+        padding: 15px;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
     .btn-primary {
         background-color: #4a90e2;
         color: white;
-        padding: 10px 20px;
+        padding: 8px 16px;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
     }
     .btn-primary:hover {
         background-color: #0056b3;
     }
-    .input-group {
+    .compact-row {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-    }
-    .input-group input {
-        flex: 1;
-        padding: 10px;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px;
-        margin-right: 10px;
-    }
-    .input-group button {
-        padding: 10px 20px;
-        font-size: 16px;
-        border: none;
-        border-radius: 5px;
-        background-color: #4a90e2;
-        color: white;
-        cursor: pointer;
-    }
-    .input-group button:hover {
-        background-color: #0056b3;
+        margin-bottom: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# Header
+# Title and subtitle
 st.markdown('<div class="title">YouTube Video Downloader</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Quickly download YouTube videos or audio with ease.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Download YouTube videos and audio with your preferred settings.</div>', unsafe_allow_html=True)
 
-# Input group for URL and fetch button
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="input-group">', unsafe_allow_html=True)
-
-url = st.text_input("🔗 Enter YouTube URL:", "", placeholder="Paste your YouTube link here")
-fetch_cookies = st.button("Fetch Cookies")
-
+# Input URL and fetch cookies button
+st.markdown('<div class="card compact-row">', unsafe_allow_html=True)
+col1, col2 = st.columns([4, 1])
+with col1:
+    url = st.text_input("🔗 YouTube URL:", placeholder="Paste your YouTube link here")
+with col2:
+    fetch_cookies = st.button("Fetch Cookies")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Fetch cookies dynamically
@@ -114,10 +93,9 @@ if fetch_cookies:
     except Exception as e:
         st.error(f"Failed to fetch cookies: {e}")
 
-# Video details and download options
+# Display video details and customization options in a compact layout
 if url:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.write("Fetching video details...")
 
     try:
         ydl_opts = {
@@ -127,30 +105,41 @@ if url:
 
         with YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=False)
-            st.image(info_dict.get("thumbnail"), width=300)
+
+        # Display thumbnail and details side by side
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            st.image(info_dict.get("thumbnail"), width=150)
+        with col2:
             st.markdown(f"**Title:** {info_dict.get('title')}")
             st.markdown(f"**Uploader:** {info_dict.get('uploader')}")
             st.markdown(f"**Views:** {info_dict.get('view_count'):,}")
 
-        format_options = st.radio("Choose Format:", ["Video", "Audio"], horizontal=True)
+        # Format selection options
+        st.markdown("---")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            format_options = st.radio("Format:", ["Video", "Audio"], horizontal=True)
+        with col2:
+            if format_options == "Video":
+                video_quality = st.selectbox("Quality:", ["Best", "Worst", "Custom"])
+                if video_quality == "Custom":
+                    custom_format = st.text_input("Custom Format:", "bestvideo+bestaudio")
+            else:
+                audio_format = st.selectbox("Audio Format:", ["MP3", "AAC", "WAV", "FLAC"])
+                audio_bitrate = st.slider("Bitrate (kbps):", 64, 320, 128, step=32)
 
-        if format_options == "Video":
-            quality = st.selectbox("Quality:", ["Best", "Worst", "Custom"])
-            if quality == "Custom":
-                custom_format = st.text_input("Custom Format:", "bestvideo+bestaudio")
-        else:
-            audio_format = st.selectbox("Audio Format:", ["MP3", "AAC", "WAV", "FLAC"])
-            audio_bitrate = st.slider("Bitrate (kbps):", 64, 320, 128)
-
-        download_button = st.button("Download")
-
-        if download_button:
+        # Download button
+        if st.button("Download"):
             with st.spinner("Downloading..."):
+                progress_bar = st.progress(0)
+
+                # Update ydl_opts based on user settings
                 if format_options == "Video":
-                    if quality == "Custom":
+                    if video_quality == "Custom":
                         ydl_opts["format"] = custom_format
                     else:
-                        ydl_opts["format"] = "best" if quality == "Best" else "worst"
+                        ydl_opts["format"] = "best" if video_quality == "Best" else "worst"
                 else:
                     ydl_opts["format"] = "bestaudio"
                     ydl_opts["postprocessors"] = [{
@@ -158,6 +147,13 @@ if url:
                         "preferredcodec": audio_format.lower(),
                         "preferredquality": str(audio_bitrate),
                     }]
+
+                def progress_hook(d):
+                    if d["status"] == "downloading":
+                        percent = re.sub(r'[^\d.]', '', d.get("_percent_str", "0"))
+                        progress_bar.progress(min(int(float(percent)), 100))
+
+                ydl_opts["progress_hooks"] = [progress_hook]
 
                 try:
                     with YoutubeDL(ydl_opts) as ydl:
