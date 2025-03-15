@@ -1,1 +1,4 @@
 ffmpeg
+yt-dlp
+yt-dlp[web]
+playwright
